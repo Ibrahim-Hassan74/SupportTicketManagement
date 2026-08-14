@@ -126,6 +126,77 @@
             <returns>An IActionResult representing the outcome described by the ApiResponse. Returns Ok if successful; otherwise,
             returns a result corresponding to the ApiResponse's status code.</returns>
         </member>
+        <member name="T:SupportTicketManagement.API.Controllers.TicketsController">
+            <summary>
+            Controller responsible for managing support tickets.
+            Provides endpoints for creating, retrieving, updating, and assigning tickets.
+            Uses role-based logic to isolate data appropriately (Admin, SupportAgent, Customer).
+            </summary>
+        </member>
+        <member name="M:SupportTicketManagement.API.Controllers.TicketsController.GetTickets(SupportTicketManagement.Core.DTO.TicketQueryRequest)">
+            <summary>
+            Retrieves a paginated list of tickets.
+            Results are filtered based on the user's role:
+            Admins see all tickets, Agents see only assigned tickets, Customers see only their own tickets.
+            </summary>
+            <param name="request">Pagination, filtering, and sorting parameters.</param>
+            <returns>A paginated list of tickets.</returns>
+        </member>
+        <member name="M:SupportTicketManagement.API.Controllers.TicketsController.GetTicketById(System.Guid)">
+            <summary>
+            Retrieves a specific ticket by its ID.
+            Access is restricted based on the user's role and ownership/assignment of the ticket.
+            </summary>
+            <param name="id">The unique identifier of the ticket.</param>
+            <returns>The ticket details.</returns>
+        </member>
+        <member name="M:SupportTicketManagement.API.Controllers.TicketsController.CreateTicket(SupportTicketManagement.Core.DTO.CreateTicketRequest)">
+            <summary>
+            Creates a new support ticket.
+            Only users with the Customer role can create tickets.
+            </summary>
+            <param name="request">The ticket details (Title, Description, Priority).</param>
+            <returns>The newly created ticket.</returns>
+        </member>
+        <member name="M:SupportTicketManagement.API.Controllers.TicketsController.UpdateTicket(System.Guid,SupportTicketManagement.Core.DTO.UpdateTicketRequest)">
+            <summary>
+            Updates the core details (Title, Description) of a ticket.
+            Only users with the Admin role can perform this general update.
+            </summary>
+            <param name="id">The unique identifier of the ticket.</param>
+            <param name="request">The updated ticket details.</param>
+            <returns>Success response.</returns>
+        </member>
+        <member name="M:SupportTicketManagement.API.Controllers.TicketsController.UpdateTicketStatus(System.Guid,SupportTicketManagement.Core.DTO.UpdateTicketStatusRequest)">
+            <summary>
+            Updates the status of a ticket.
+            Role rules apply:
+            - Admin: Can set any status.
+            - SupportAgent: Can resolve assigned tickets.
+            - Customer: Can close or reopen their own tickets.
+            </summary>
+            <param name="id">The unique identifier of the ticket.</param>
+            <param name="request">The new status.</param>
+            <returns>Success response.</returns>
+        </member>
+        <member name="M:SupportTicketManagement.API.Controllers.TicketsController.UpdateTicketPriority(System.Guid,SupportTicketManagement.Core.DTO.UpdateTicketPriorityRequest)">
+            <summary>
+            Updates the priority of a ticket.
+            Only users with the Admin role can change ticket priority.
+            </summary>
+            <param name="id">The unique identifier of the ticket.</param>
+            <param name="request">The new priority.</param>
+            <returns>Success response.</returns>
+        </member>
+        <member name="M:SupportTicketManagement.API.Controllers.TicketsController.AssignAgent(System.Guid,SupportTicketManagement.Core.DTO.AssignTicketRequest)">
+            <summary>
+            Assigns a Support Agent to a ticket.
+            Only users with the Admin role can assign agents.
+            </summary>
+            <param name="id">The unique identifier of the ticket.</param>
+            <param name="request">The ID of the Support Agent.</param>
+            <returns>Success response.</returns>
+        </member>
         <member name="T:SupportTicketManagement.API.Controllers.UsersController">
             <summary>
             Controller responsible for managing users in the Support Ticket Management system.
