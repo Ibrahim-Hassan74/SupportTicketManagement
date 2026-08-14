@@ -119,8 +119,7 @@ namespace SupportTicketManagement.API.StartupExtensions
                     context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
                     context.HttpContext.Response.ContentType = "application/json";
 
-                    var localizer = context.HttpContext.RequestServices.GetRequiredService<IStringLocalizer<SharedResource>>();
-                    var response = ApiResponseFactory.TooManyRequests(localizer["TooManyRequests"].Value);
+                    var response = ApiResponseFactory.TooManyRequests("Too Many Requests");
                     await context.HttpContext.Response.WriteAsJsonAsync(response);
                 };
             });

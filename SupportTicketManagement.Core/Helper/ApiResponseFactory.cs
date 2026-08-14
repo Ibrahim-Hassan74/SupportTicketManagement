@@ -164,7 +164,7 @@ namespace SupportTicketManagement.Core.Helper
                 ["expiration"] = res.Expiration?.ToString("o"),
                 ["refreshTokenExpirationDateTime"] = res.RefreshTokenExpirationDateTime.ToString("o"),
                 ["userName"] = res.UserName,
-                ["phone"] = res.Phone
+                ["email"] = res.Email
             };
         }
     }
