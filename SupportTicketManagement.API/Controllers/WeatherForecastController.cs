@@ -2,9 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace SupportTicketManagement.API.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class WeatherForecastController : ControllerBase
+    public class WeatherForecastController : CustomControllerBase
     {
         private static readonly string[] Summaries =
         [

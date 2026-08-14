@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SupportTicketManagement.API</name>
+    </assembly>
+    <members>
+        <member name="T:SupportTicketManagement.API.Controllers.CustomControllerBase">
+            <summary>
+            Base controller for the Support Ticket Management API, providing common functionality for all controllers.
+            </summary>
+        </member>
+        <member name="M:SupportTicketManagement.API.Controllers.CustomControllerBase.#ctor">
+            <summary>
+            Constructor for CustomControllerBase, initializing the unit of work.
+            </summary>
+        </member>
+        <member name="T:Program">
+            <summary>
+            Auto-generated public partial Program class for top-level statement apps.
+            </summary>
+        </member>
+    </members>
+</doc>

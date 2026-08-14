@@ -1,18 +1,31 @@
+using SupportTicketManagement.API.StartupExtensions;
+using SupportTicketManagement.Core;
+using SupportTicketManagement.Infrastructure;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+var configPath = Path.Combine(builder.Environment.ContentRootPath, "Configurations");
+builder.Configuration
+    .AddJsonFile(Path.Combine(configPath, "appsettings.json"), optional: false, reloadOnChange: true)
+    .AddJsonFile(Path.Combine(configPath, $"appsettings.{builder.Environment.EnvironmentName}.json"), optional: true);
 
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.ConfigureServices(builder.Configuration);
+builder.Services.ConfigureInfrastructure(builder.Configuration);
+builder.Services.ConfigureCore(builder.Configuration);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "1.0");
+        options.SwaggerEndpoint("/swagger/v2/swagger.json", "2.0");
+    });
 }
+
+app.UseCors("AllowAllOrigins");
 
 app.UseHttpsRedirection();
 
