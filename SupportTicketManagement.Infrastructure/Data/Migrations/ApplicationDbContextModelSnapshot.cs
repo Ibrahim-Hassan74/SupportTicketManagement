@@ -125,6 +125,188 @@ namespace SupportTicketManagement.Infrastructure.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("SupportTicketManagement.Core.Domain.Entities.Ticket", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AssignedAgentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("ClosedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<int>("Priority")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
+
+                    b.Property<DateTimeOffset?>("ResolvedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedAgentId")
+                        .HasDatabaseName("IX_Tickets_AssignedAgentId")
+                        .HasFilter("[AssignedAgentId] IS NOT NULL");
+
+                    b.HasIndex("CreatedAt")
+                        .IsDescending()
+                        .HasDatabaseName("IX_Tickets_CreatedAt");
+
+                    b.HasIndex("CustomerId")
+                        .HasDatabaseName("IX_Tickets_CustomerId");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("IX_Tickets_Status");
+
+                    b.HasIndex("Status", "Priority")
+                        .HasDatabaseName("IX_Tickets_Status_Priority");
+
+                    b.ToTable("Tickets");
+                });
+
+            modelBuilder.Entity("SupportTicketManagement.Core.Domain.Entities.TicketActivity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("NewValue")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("OldValue")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid>("TicketId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("TicketId", "CreatedAt")
+                        .HasDatabaseName("IX_TicketActivities_TicketId_CreatedAt");
+
+                    b.ToTable("TicketActivities");
+                });
+
+            modelBuilder.Entity("SupportTicketManagement.Core.Domain.Entities.TicketComment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("TicketId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketId")
+                        .HasDatabaseName("IX_TicketComments_TicketId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TicketComments");
+                });
+
+            modelBuilder.Entity("SupportTicketManagement.Core.Domain.Entities.TimeEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AgentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("TicketId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly>("WorkDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AgentId");
+
+                    b.HasIndex("TicketId")
+                        .HasDatabaseName("IX_TimeEntries_TicketId");
+
+                    b.ToTable("TimeEntries", t =>
+                        {
+                            t.HasCheckConstraint("CK_TimeEntries_DurationMinutes", "[DurationMinutes] > 0 AND [DurationMinutes] <= 1440");
+                        });
+                });
+
             modelBuilder.Entity("SupportTicketManagement.Core.Domain.IdentityEntities.ApplicationRole", b =>
                 {
                     b.Property<Guid>("Id")
@@ -165,6 +347,9 @@ namespace SupportTicketManagement.Infrastructure.Data.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("DisplayName")
                         .IsRequired()
@@ -281,6 +466,101 @@ namespace SupportTicketManagement.Infrastructure.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("SupportTicketManagement.Core.Domain.Entities.Ticket", b =>
+                {
+                    b.HasOne("SupportTicketManagement.Core.Domain.IdentityEntities.ApplicationUser", "AssignedAgent")
+                        .WithMany("AssignedTickets")
+                        .HasForeignKey("AssignedAgentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("SupportTicketManagement.Core.Domain.IdentityEntities.ApplicationUser", "Customer")
+                        .WithMany("CreatedTickets")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AssignedAgent");
+
+                    b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("SupportTicketManagement.Core.Domain.Entities.TicketActivity", b =>
+                {
+                    b.HasOne("SupportTicketManagement.Core.Domain.Entities.Ticket", "Ticket")
+                        .WithMany("Activities")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SupportTicketManagement.Core.Domain.IdentityEntities.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SupportTicketManagement.Core.Domain.Entities.TicketComment", b =>
+                {
+                    b.HasOne("SupportTicketManagement.Core.Domain.Entities.Ticket", "Ticket")
+                        .WithMany("Comments")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SupportTicketManagement.Core.Domain.IdentityEntities.ApplicationUser", "User")
+                        .WithMany("Comments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SupportTicketManagement.Core.Domain.Entities.TimeEntry", b =>
+                {
+                    b.HasOne("SupportTicketManagement.Core.Domain.IdentityEntities.ApplicationUser", "Agent")
+                        .WithMany("TimeEntries")
+                        .HasForeignKey("AgentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SupportTicketManagement.Core.Domain.Entities.Ticket", "Ticket")
+                        .WithMany("TimeEntries")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Agent");
+
+                    b.Navigation("Ticket");
+                });
+
+            modelBuilder.Entity("SupportTicketManagement.Core.Domain.Entities.Ticket", b =>
+                {
+                    b.Navigation("Activities");
+
+                    b.Navigation("Comments");
+
+                    b.Navigation("TimeEntries");
+                });
+
+            modelBuilder.Entity("SupportTicketManagement.Core.Domain.IdentityEntities.ApplicationUser", b =>
+                {
+                    b.Navigation("AssignedTickets");
+
+                    b.Navigation("Comments");
+
+                    b.Navigation("CreatedTickets");
+
+                    b.Navigation("TimeEntries");
                 });
 #pragma warning restore 612, 618
         }
