@@ -22,8 +22,6 @@
   <ItemGroup>
     <Folder Include="Domain\Entities\" />
     <Folder Include="Domain\Options\" />
-    <Folder Include="DTO\" />
-    <Folder Include="Helper\" />
     <Folder Include="Mapping\" />
     <Folder Include="Services\" />
     <Folder Include="ServiceContracts\" />
