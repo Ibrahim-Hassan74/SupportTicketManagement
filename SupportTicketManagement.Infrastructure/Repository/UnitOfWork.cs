@@ -1,4 +1,4 @@
-﻿using SupportTicketManagement.Core.RepositoryContracts;
+using SupportTicketManagement.Core.RepositoryContracts;
 using SupportTicketManagement.Infrastructure.Data;
 
 namespace SupportTicketManagement.Infrastructure.Repository
@@ -7,6 +7,7 @@ namespace SupportTicketManagement.Infrastructure.Repository
     {
         private readonly ApplicationDbContext _context;
         public ITicketActivityRepository TicketActivityRepository { get; }
+        public ITicketCommentRepository TicketCommentRepository { get; }
 
         public ITicketsRepository TicketsRepository { get; }
 
@@ -16,6 +17,7 @@ namespace SupportTicketManagement.Infrastructure.Repository
         {
             _context = context;
             TicketActivityRepository = new TicketActivityRepository(_context);
+            TicketCommentRepository = new TicketCommentRepository(_context);
             TicketsRepository = new TicketsRepository(_context);
             TimeEntryRepository = new TimeEntryRepository(_context);
         }
