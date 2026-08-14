@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 
 namespace SupportTicketManagement.Core.RepositoryContracts
 {
@@ -15,6 +15,13 @@ namespace SupportTicketManagement.Core.RepositoryContracts
         /// <param name="includes"></param>
         /// <returns></returns>
         Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includes);
+        /// <summary>
+        /// Gets all entities of type T from the repository that match a condition, with specified includes.
+        /// </summary>
+        /// <param name="predicate">The condition to filter entities.</param>
+        /// <param name="includes">The related entities to include.</param>
+        /// <returns></returns>
+        Task<IEnumerable<T>> GetFilteredAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);
         /// <summary>
         /// Gets an entity by its identifier.
         /// </summary>

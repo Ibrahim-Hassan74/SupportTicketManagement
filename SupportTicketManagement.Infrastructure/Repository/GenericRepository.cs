@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SupportTicketManagement.Core.RepositoryContracts;
 using SupportTicketManagement.Infrastructure.Data;
 using System.Linq.Expressions;
@@ -70,6 +70,27 @@ namespace SupportTicketManagement.Infrastructure.Repository
             {
                 query = query.Include(include);
             }
+            return await query.ToListAsync();
+        }
+
+        /// <inheritdoc/>
+        public async Task<IEnumerable<TModel>> GetFilteredAsync(Expression<Func<TModel, bool>> predicate, params Expression<Func<TModel, object>>[] includes)
+        {
+            if (predicate == null)
+            {
+                throw new ArgumentNullException(nameof(predicate), "Predicate cannot be null");
+            }
+            
+            IQueryable<TModel> query = _db.Where(predicate);
+            
+            if (includes != null)
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            }
+            
             return await query.ToListAsync();
         }
 
