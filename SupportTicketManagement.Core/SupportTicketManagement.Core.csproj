@@ -23,7 +23,6 @@
     <Folder Include="Domain\Entities\" />
     <Folder Include="Domain\Options\" />
     <Folder Include="Mapping\" />
-    <Folder Include="RepositoryContracts\" />
   </ItemGroup>
 
 </Project>
