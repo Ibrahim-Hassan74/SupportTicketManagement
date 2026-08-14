@@ -126,6 +126,67 @@
             <returns>An IActionResult representing the outcome described by the ApiResponse. Returns Ok if successful; otherwise,
             returns a result corresponding to the ApiResponse's status code.</returns>
         </member>
+        <member name="T:SupportTicketManagement.API.Controllers.DashboardController">
+            <summary>
+            Controller responsible for retrieving system-wide dashboard metrics.
+            Provides endpoints for overall statistics, agent workload, and ticket trends.
+            Restricted to administrators only.
+            </summary>
+        </member>
+        <member name="M:SupportTicketManagement.API.Controllers.DashboardController.GetStats">
+            <summary>
+            Retrieves system-wide ticket statistics.
+            </summary>
+            <returns>Counts for tickets in various states and average resolution time.</returns>
+        </member>
+        <member name="M:SupportTicketManagement.API.Controllers.DashboardController.GetAgentWorkload">
+            <summary>
+            Retrieves the current workload for all agents.
+            </summary>
+            <returns>A list of agents with their open/in-progress ticket counts and total logged time.</returns>
+        </member>
+        <member name="M:SupportTicketManagement.API.Controllers.DashboardController.GetTicketTrends(System.Int32)">
+            <summary>
+            Retrieves ticket creation and closure trends over a specified number of days.
+            </summary>
+            <param name="days">The number of days to look back (default is 30).</param>
+            <returns>A chronological list of daily ticket trends.</returns>
+        </member>
+        <member name="T:SupportTicketManagement.API.Controllers.TicketActivitiesController">
+            <summary>
+            Controller responsible for retrieving the activity timeline (audit trail) for a specific ticket.
+            </summary>
+        </member>
+        <member name="M:SupportTicketManagement.API.Controllers.TicketActivitiesController.GetActivities(System.Guid)">
+            <summary>
+            Retrieves the chronological history of activities for a specific ticket.
+            Users can only view the activity timeline for tickets they have access to.
+            </summary>
+            <param name="ticketId">The unique identifier of the ticket.</param>
+            <returns>A list of activities representing the audit trail of the ticket.</returns>
+        </member>
+        <member name="T:SupportTicketManagement.API.Controllers.TicketCommentsController">
+            <summary>
+            Controller responsible for managing comments on a specific support ticket.
+            Provides endpoints for retrieving and adding comments.
+            </summary>
+        </member>
+        <member name="M:SupportTicketManagement.API.Controllers.TicketCommentsController.GetComments(System.Guid)">
+            <summary>
+            Retrieves a chronological list of comments for a specific ticket.
+            Users can only view comments for tickets they have access to.
+            </summary>
+            <param name="ticketId">The unique identifier of the ticket.</param>
+            <returns>A list of comments associated with the ticket.</returns>
+        </member>
+        <member name="M:SupportTicketManagement.API.Controllers.TicketCommentsController.AddComment(System.Guid,SupportTicketManagement.Core.DTO.CreateCommentRequest)">
+            <summary>
+            Adds a new comment to a specific ticket.
+            </summary>
+            <param name="ticketId">The unique identifier of the ticket.</param>
+            <param name="request">The content of the new comment.</param>
+            <returns>A success response if the comment is added.</returns>
+        </member>
         <member name="T:SupportTicketManagement.API.Controllers.TicketsController">
             <summary>
             Controller responsible for managing support tickets.
@@ -196,6 +257,30 @@
             <param name="id">The unique identifier of the ticket.</param>
             <param name="request">The ID of the Support Agent.</param>
             <returns>Success response.</returns>
+        </member>
+        <member name="T:SupportTicketManagement.API.Controllers.TicketTimeEntriesController">
+            <summary>
+            Controller responsible for managing time entries on a specific support ticket.
+            Provides endpoints for retrieving time logs and allowing assigned agents to log their work duration.
+            </summary>
+        </member>
+        <member name="M:SupportTicketManagement.API.Controllers.TicketTimeEntriesController.GetTimeEntries(System.Guid)">
+            <summary>
+            Retrieves all time entries logged for a specific ticket.
+            Access is restricted to Admins and the Agent explicitly assigned to the ticket.
+            Customers cannot view time entries.
+            </summary>
+            <param name="ticketId">The unique identifier of the ticket.</param>
+            <returns>A list of time entries along with the total duration logged.</returns>
+        </member>
+        <member name="M:SupportTicketManagement.API.Controllers.TicketTimeEntriesController.AddTimeEntry(System.Guid,SupportTicketManagement.Core.DTO.CreateTimeEntryRequest)">
+            <summary>
+            Logs a new time entry for a specific ticket.
+            Only the Support Agent currently assigned to the ticket can log time.
+            </summary>
+            <param name="ticketId">The unique identifier of the ticket.</param>
+            <param name="request">The time entry details (WorkDate, DurationMinutes, Description).</param>
+            <returns>A success response if the time entry is added.</returns>
         </member>
         <member name="T:SupportTicketManagement.API.Controllers.UsersController">
             <summary>
