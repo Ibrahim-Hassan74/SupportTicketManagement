@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -74,7 +74,7 @@ namespace SupportTicketManagement.Core
             services.AddScoped<IAuthenticationService, AuthenticationService>();
 
             services.AddScoped<IUsersService, UsersService>();
-
+            services.AddScoped<ITicketsService, TicketsService>();
 
             return services;
         }
