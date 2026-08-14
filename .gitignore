@@ -410,3 +410,4 @@ FodyWeavers.xsd
 **/appsettings.json
 **/appsettings.Development.json
 **/appsettings.Production.json
+/SupportTicketManagement.API/Configurations/appsettings.Production.json
