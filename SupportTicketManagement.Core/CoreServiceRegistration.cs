@@ -75,6 +75,9 @@ namespace SupportTicketManagement.Core
 
             services.AddScoped<IUsersService, UsersService>();
             services.AddScoped<ITicketsService, TicketsService>();
+            services.AddScoped<ICommentsService, CommentsService>();
+            services.AddScoped<IActivitiesService, ActivitiesService>();
+            services.AddScoped<ITimeEntriesService, TimeEntriesService>();
 
             return services;
         }
