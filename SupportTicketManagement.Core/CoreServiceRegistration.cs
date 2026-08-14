@@ -70,7 +70,10 @@ namespace SupportTicketManagement.Core
             });
 
             services.AddScoped<IJwtService, JwtService>();
+
             services.AddScoped<IAuthenticationService, AuthenticationService>();
+
+            services.AddScoped<IUsersService, UsersService>();
 
 
             return services;

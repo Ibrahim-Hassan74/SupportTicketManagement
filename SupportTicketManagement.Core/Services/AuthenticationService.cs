@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -52,7 +52,8 @@ namespace SupportTicketManagement.Core.Services
                 UserName = registerDTO.Email,
                 Email = registerDTO.Email,
                 PhoneNumber = registerDTO.Phone,
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                CreatedAt = DateTimeOffset.Now
             };
 
             IdentityResult result = await _userManager.CreateAsync(user, registerDTO.Password);
@@ -76,6 +77,9 @@ namespace SupportTicketManagement.Core.Services
             var user = await _userManager.FindByEmailAsync(loginDTO.Email);
             if (user == null)
                 return ApiResponseFactory.Failure("User not found.", 404, "No account found with this email.");
+
+            if (user.IsDeleted)
+                return ApiResponseFactory.Failure("Account deactivated.", 403, "Your account has been deactivated. Please contact an administrator.");
 
             var result = await _signInManager.PasswordSignInAsync(user, loginDTO.Password, loginDTO.RememberMe, true);
 
@@ -125,6 +129,9 @@ namespace SupportTicketManagement.Core.Services
             var user = await _userManager.FindByEmailAsync(email);
             if (user is null)
                 return ApiResponseFactory.Failure("User not found.", 404, "User does not exist.");
+
+            if (user.IsDeleted)
+                return ApiResponseFactory.Failure("Account deactivated.", 403, "Your account has been deactivated. Please contact an administrator.");
 
             if (user.RefreshToken != model.RefreshToken ||
                 user.RefreshTokenExpirationDateTime <= DateTimeOffset.UtcNow)
