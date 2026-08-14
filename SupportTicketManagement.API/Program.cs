@@ -1,3 +1,4 @@
+using SupportTicketManagement.API.Middleware;
 using SupportTicketManagement.API.StartupExtensions;
 using SupportTicketManagement.Core;
 using SupportTicketManagement.Infrastructure;
@@ -10,7 +11,9 @@ builder.Configuration
     .AddJsonFile(Path.Combine(configPath, $"appsettings.{builder.Environment.EnvironmentName}.json"), optional: true);
 
 builder.Services.ConfigureServices(builder.Configuration);
+
 builder.Services.ConfigureInfrastructure(builder.Configuration);
+
 builder.Services.ConfigureCore(builder.Configuration);
 
 var app = builder.Build();
@@ -25,7 +28,11 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseExceptionHandlingMiddleware();
+
 app.UseCors("AllowAllOrigins");
+
+app.UseRateLimiter();
 
 app.UseHttpsRedirection();
 

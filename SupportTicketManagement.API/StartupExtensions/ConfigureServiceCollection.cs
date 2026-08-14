@@ -1,10 +1,14 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using Microsoft.OpenApi;
 using SupportTicketManagement.Core.Domain.IdentityEntities;
+using SupportTicketManagement.Core.Helper;
 using SupportTicketManagement.Infrastructure.Data;
+using System.Threading.RateLimiting;
 
 namespace SupportTicketManagement.API.StartupExtensions
 {
@@ -93,6 +97,49 @@ namespace SupportTicketManagement.API.StartupExtensions
             });
 
             services.AddHttpClient();
+
+            services.AddRateLimiter(options =>
+            {
+                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+                {
+                    var ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+                    return RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: ip,
+                        factory: _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = 15,
+                            Window = TimeSpan.FromSeconds(1),
+                            AutoReplenishment = true,
+                            QueueLimit = 0
+                        });
+                });
+
+                options.OnRejected = async (context, token) =>
+                {
+                    context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                    context.HttpContext.Response.ContentType = "application/json";
+
+                    var localizer = context.HttpContext.RequestServices.GetRequiredService<IStringLocalizer<SharedResource>>();
+                    var response = ApiResponseFactory.TooManyRequests(localizer["TooManyRequests"].Value);
+                    await context.HttpContext.Response.WriteAsJsonAsync(response);
+                };
+            });
+
+            services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory = context =>
+                {
+                    var errors = context.ModelState
+                        .Where(x => x.Value.Errors.Count > 0)
+                        .SelectMany(x => x.Value.Errors)
+                        .Select(x => x.ErrorMessage)
+                        .ToList();
+
+                    var response = ApiResponseFactory.BadRequest("Validation failed.", errors);
+
+                    return new BadRequestObjectResult(response);
+                };
+            });
 
 
             return services;
