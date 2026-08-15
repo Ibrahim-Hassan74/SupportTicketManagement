@@ -50,5 +50,6 @@ namespace SupportTicketManagement.Core.ServiceContracts
         /// or a failure response when the refresh token is invalid or expired.
         /// </returns>
         Task<ApiResponse> RefreshTokenAsync(TokenModel model);
+        Task<ApiResponse> GetUserByIdAsync(string userId);
     }
 }

@@ -1,4 +1,3 @@
-using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -199,5 +198,23 @@ namespace SupportTicketManagement.Core.Services
             return tokenResponse;
         }
 
+        public async Task<ApiResponse> GetUserByIdAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return ApiResponseFactory.Failure("User not found.", 404, "No user found with the provided ID.");
+            var role = await _userManager.GetRolesAsync(user);
+            var userResponse = new UserResponse
+            {
+                Id = user.Id,
+                DisplayName = user.DisplayName,
+                Email = user.Email,
+                Role = role.FirstOrDefault() ?? "Unknown",
+                IsActive = !user.IsDeleted,
+                CreatedAt = user.CreatedAt
+            };
+
+            return ApiResponseFactory.Success("User retrieved successfully.", userResponse);
+        }
     }
 }

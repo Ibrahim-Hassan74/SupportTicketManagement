@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SupportTicketManagement.Core.DTO;
+using SupportTicketManagement.Core.Helper;
 using SupportTicketManagement.Core.ServiceContracts;
 using System.Security.Claims;
 
@@ -152,6 +153,49 @@ namespace SupportTicketManagement.API.Controllers
             var email = User.FindFirst(ClaimTypes.Email)?.Value;
             var response = await _authService.LogoutAsync(email);
             return StatusCode(response.StatusCode, response);
+        }
+
+        /// <summary>
+        /// Retrieves information about the currently authenticated user.
+        /// </summary>
+        /// <remarks>
+        /// Requires the user to be authenticated. The endpoint reads the user ID from the JWT claims
+        /// and fetches the corresponding user details from the authentication service.
+        /// </remarks>
+        /// <returns>
+        /// Returns detailed information about the authenticated user.
+        /// </returns>
+        /// <response code="200">
+        /// User found and returned successfully. Returns <see cref="UserResponse"/>.
+        /// </response>
+        /// <response code="400">
+        /// Bad Request – No user ID found in claims. Returns <see cref="ApiErrorResponse"/>.
+        /// </response>
+        /// <response code="404">
+        /// Not Found – User does not exist. Returns <see cref="ApiErrorResponse"/>.
+        /// </response>
+        /// <response code="401">
+        /// Unauthorized – The user is not authenticated. Returns <see cref="ApiErrorResponse"/>.
+        /// </response>
+        [HttpGet("me")]
+        [Authorize]
+        [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return BadRequest(ApiResponseFactory.BadRequest("User ID not found."));
+
+            var userResponse = await _authService.GetUserByIdAsync(userId);
+            if (!userResponse.Success)
+                return ToActionResult(userResponse);
+
+            var user = userResponse as ApiResponseWithData<UserResponse>;
+
+            return Ok(user?.Data);
         }
     }
 }
