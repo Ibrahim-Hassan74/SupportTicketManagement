@@ -1,5 +1,11 @@
 <Solution>
-  <Project Path="SupportTicketManagement.API/SupportTicketManagement.API.csproj" />
-  <Project Path="SupportTicketManagement.Core/SupportTicketManagement.Core.csproj" />
-  <Project Path="SupportTicketManagement.Infrastructure/SupportTicketManagement.Infrastructure.csproj" />
+  <Folder Name="/src/">
+    <Project Path="SupportTicketManagement.API/SupportTicketManagement.API.csproj" />
+    <Project Path="SupportTicketManagement.Core/SupportTicketManagement.Core.csproj" />
+    <Project Path="SupportTicketManagement.Infrastructure/SupportTicketManagement.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="SupportTicketManagement.ControllerTests/SupportTicketManagement.ControllerTests.csproj" Id="f2856b8f-ff9a-4892-b518-619ed393e0a9" />
+    <Project Path="SupportTicketManagement.ServiceTests/SupportTicketManagement.ServiceTests.csproj" Id="1c5dcb28-cf47-466b-9650-81eecffc2d03" />
+  </Folder>
 </Solution>
