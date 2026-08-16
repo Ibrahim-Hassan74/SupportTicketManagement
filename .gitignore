@@ -411,3 +411,6 @@ FodyWeavers.xsd
 **/appsettings.Development.json
 **/appsettings.Production.json
 /SupportTicketManagement.API/Configurations/appsettings.Production.json
+
+# Docker environment secrets
+.env

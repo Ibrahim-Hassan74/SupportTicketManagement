@@ -1,0 +1,56 @@
+services:
+  # ── ASP.NET Core API ──────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: supportticket-api
+    ports:
+      - "${API_HTTP_PORT:-5000}:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=SupportTicketDb;User Id=sa;Password=${SA_PASSWORD:-YourStrong@Pass123};TrustServerCertificate=True;MultipleActiveResultSets=True;
+      - Jwt__Issuer=${JWT_ISSUER:-https://support-ticket.api}
+      - Jwt__Audiences__0=https://localhost:4200
+      - Jwt__Audiences__1=postman-client
+      - Jwt__EXPIRATION_MINUTES=${JWT_EXPIRATION_MINUTES:-30}
+      - Jwt__Key=${JWT_KEY:-V9AUi93Un0mh8hpNj/dC19I83Eu9xZLdsvDNKbniS1bRnQaVuKb+1vRRd03l1k0HQ5mjab0sHHdmEnYmD3pWgQ==}
+      - RefreshToken__EXPIRATION_MINUTES=500
+      - RefreshToken__LONG_EXPIRATION_MINUTES=2880
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - supportticket-net
+    restart: unless-stopped
+
+  # ── SQL Server ────────────────────────────────────────────
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: supportticket-db
+    ports:
+      - "${SQL_PORT:-1433}:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${SA_PASSWORD:-YourStrong@Pass123}
+      - MSSQL_PID=${MSSQL_PID:-Developer}
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${SA_PASSWORD:-YourStrong@Pass123}" -C -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - supportticket-net
+    restart: unless-stopped
+
+# ── Volumes ───────────────────────────────────────────────
+volumes:
+  sqlserver-data:
+
+# ── Networks ──────────────────────────────────────────────
+networks:
+  supportticket-net:
+    driver: bridge

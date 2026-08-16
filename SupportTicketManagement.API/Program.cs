@@ -30,7 +30,7 @@ var app = builder.Build();
 
 app.UseExceptionHandlingMiddleware();
 
-app.UseCors("AllowAllOrigins");
+app.UseCors("AllowFrontend");
 
 app.UseRateLimiter();
 

@@ -1,4 +1,4 @@
-﻿using Asp.Versioning;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
@@ -26,10 +26,15 @@ namespace SupportTicketManagement.API.StartupExtensions
 
             services.AddCors(options =>
             {
-                options.AddPolicy("AllowAllOrigins",
-                    policybuilder => policybuilder.AllowAnyOrigin()
-                                      .AllowAnyMethod()
-                                      .AllowAnyHeader());
+                options.AddPolicy("AllowFrontend", policy =>
+                {
+                    var allowedOrigins = configuration.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+                    policy
+                        .WithOrigins(allowedOrigins)
+                        .WithHeaders("Content-Type", "Authorization", "Accept", "Accept-Language")
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
             });
 
             services.AddEndpointsApiExplorer();

@@ -6,8 +6,9 @@ A robust, enterprise-grade ASP.NET Core 8 Web API serving as the backend for the
 
 - **Live API Base URL**: [https://support-ticket.runasp.net/api/v1](https://support-ticket.runasp.net/api/v1)
 - **Swagger / OpenAPI Documentation**: [Swagger Interface](https://support-ticket.runasp.net/swagger/index.html)
-- **Frontend Live Demo**: [https://ticket-hub.web.app](https://ticket-hub.web.app)
-- **GitHub Repository**: [Ibrahim-Hassan74/TicketHub](https://github.com/Ibrahim-Hassan74/TicketHub)
+- **Frontend Live Demo**: [https://ticket--hub.web.app](https://ticket--hub.web.app)
+- **Frontend GitHub Repository**: [Frontend Repository](https://github.com/Ibrahim-Hassan74/TicketHub)
+- **Backend GitHub Repository**: [Backend Repository](https://github.com/Ibrahim-Hassan74/SupportTicketManagement)
 
 ## Assessment Overview
 
@@ -172,14 +173,26 @@ Users
 
 Required environment configuration is located in `appsettings.json`. For local development, update your `appsettings.Development.json`.
 
+### CORS & JWT Security
+To ensure strict security, CORS and JWT validation are explicitly configured:
+- **CORS**: Controlled by the `AllowedOrigins` array. Only the specific frontend URLs defined here are permitted to interact with the API, tightening browser security.
+- **JWT Validation**: The API validates that incoming tokens were issued by the correct authority (`Issuer`) and intended for authorized clients (`Audiences` like the frontend app or Postman).
+
 ```json
 {
+  "AllowedOrigins": [
+    "https://ticket--hub.web.app",
+    "http://localhost:4200"
+  ],
   "ConnectionStrings": {
     "DefaultConnection": "<YOUR_CONNECTION_STRING>"
   },
   "Jwt": {
-    "Issuer": "<YOUR_ISSUER>",
-    "Audiences": [ "<YOUR_AUDIENCE>" ],
+    "Issuer": "https://support-ticket.api",
+    "Audiences": [ 
+      "https://localhost:4200",
+      "postman-client"
+    ],
     "EXPIRATION_MINUTES": 30,
     "Key": "<YOUR_SECRET_KEY_MINIMUM_32_CHARS>"
   }
@@ -202,6 +215,18 @@ Required environment configuration is located in `appsettings.json`. For local d
 6. Open Swagger at `https://localhost:7235/swagger/index.html` (or the port specified in your launchSettings).
 7. Login using one of the seeded accounts to receive a JWT.
 
+## Running with Docker
+
+The project includes a production-ready `.NET 10` `Dockerfile` and a `docker-compose.yml` for orchestrating the API and SQL Server together in isolated containers.
+
+1. Ensure Docker Desktop is running.
+2. Create a `.env` file in the root directory (you can use the existing `.env` template) to securely provide your `SA_PASSWORD` and `JWT_KEY`.
+3. Start the services:
+   ```bash
+   docker-compose up -d --build
+   ```
+4. The API will wait for SQL Server to become healthy, apply migrations automatically (if configured), and be accessible on `http://localhost:5000` (or the port mapped in your `.env`).
+
 ## Testing
 
 The solution includes xUnit test projects to ensure business rules and API endpoints function correctly in isolation.
@@ -215,8 +240,6 @@ To run the automated tests locally:
    ```
 
 ## Assumptions & Limitations
-
-- **Dockerization**: The solution currently does not include a `docker-compose.yml` or `Dockerfile`. Standard local IIS Express or Kestrel hosting is expected.
 - **Refresh Tokens**: While the configuration keys for refresh tokens exist in `appsettings.json`, full refresh token rotation is not actively enforced in the current endpoint structure.
 
 ## Technical Review Highlights
@@ -242,3 +265,4 @@ To run the automated tests locally:
 | Dashboard Metrics        | Dedicated controller for statistics. | [Yes] |
 | Automated Testing        | xUnit tests for controllers and logic. | [Yes] |
 | Seed Data                | EF Core initializers included. | [Yes] |
+| Dockerization            | Included Dockerfile and docker-compose.yml. | [Yes] |
