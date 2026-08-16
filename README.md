@@ -1,6 +1,6 @@
 # Support Ticket Management System - Backend
 
-A robust, enterprise-grade ASP.NET Core 8 Web API serving as the backend for the Support Ticket Management System. This project enforces strict role-based access control, customer data isolation, and comprehensive ticket lifecycle management using Clean Architecture principles.
+A robust, enterprise-grade ASP.NET Core 10 Web API serving as the backend for the Support Ticket Management System. This project enforces strict role-based access control, customer data isolation, and comprehensive ticket lifecycle management using Clean Architecture principles.
 
 ## Live Resources
 
