@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Moq;
+using Microsoft.Extensions.Logging;
 using SupportTicketManagement.Core.Domain.Entities;
 using SupportTicketManagement.Core.DTO;
 using SupportTicketManagement.Core.Enums;
@@ -29,7 +30,7 @@ namespace SupportTicketManagement.ServiceTests
             _unitOfWorkMock.Setup(u => u.TimeEntryRepository).Returns(_timeEntryRepositoryMock.Object);
             _unitOfWorkMock.Setup(u => u.TicketActivityRepository).Returns(_ticketActivityRepositoryMock.Object);
 
-            _timeEntriesService = new TimeEntriesService(_unitOfWorkMock.Object);
+            _timeEntriesService = new TimeEntriesService(_unitOfWorkMock.Object, new Mock<ILogger<TimeEntriesService>>().Object);
         }
 
         #region GetTimeEntriesAsync

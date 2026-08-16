@@ -1,4 +1,4 @@
-﻿using SupportTicketManagement.Core.Helper;
+using SupportTicketManagement.Core.Helper;
 using System.Net;
 using System.Text.Json;
 
@@ -8,11 +8,13 @@ namespace SupportTicketManagement.API.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly IHostEnvironment _host;
+        private readonly ILogger<ExceptionHandlingMiddleware> _logger;
 
-        public ExceptionHandlingMiddleware(RequestDelegate next, IHostEnvironment host)
+        public ExceptionHandlingMiddleware(RequestDelegate next, IHostEnvironment host, ILogger<ExceptionHandlingMiddleware> logger)
         {
             _next = next;
             _host = host;
+            _logger = logger;
         }
 
         public async Task Invoke(HttpContext httpContext)
@@ -25,6 +27,8 @@ namespace SupportTicketManagement.API.Middleware
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "An unhandled exception occurred while processing the request.");
+                
                 httpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 httpContext.Response.ContentType = "application/json";
                 var response = _host.IsDevelopment() ?

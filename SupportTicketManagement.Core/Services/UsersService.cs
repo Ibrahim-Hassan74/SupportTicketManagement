@@ -5,6 +5,7 @@ using SupportTicketManagement.Core.Enums;
 using SupportTicketManagement.Core.Helper;
 using SupportTicketManagement.Core.ServiceContracts;
 using SupportTicketManagement.Core.Domain.IdentityEntities;
+using Microsoft.Extensions.Logging;
 
 namespace SupportTicketManagement.Core.Services
 {
@@ -12,11 +13,13 @@ namespace SupportTicketManagement.Core.Services
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
+        private readonly ILogger<UsersService> _logger;
 
-        public UsersService(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager)
+        public UsersService(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, ILogger<UsersService> logger)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _logger = logger;
         }
 
         /// <summary>
@@ -105,12 +108,18 @@ namespace SupportTicketManagement.Core.Services
 
             // Validate role is a valid enum value
             if (!Enum.TryParse<UserRole>(request.Role, ignoreCase: true, out var role))
+            {
+                _logger.LogWarning("Failed to create user: Invalid role '{Role}'.", request.Role);
                 return ApiResponseFactory.BadRequest($"Invalid role '{request.Role}'. Valid roles: {string.Join(", ", Enum.GetNames<UserRole>())}");
+            }
 
             // Check for duplicate email
             var existingUser = await _userManager.FindByEmailAsync(request.Email);
             if (existingUser is not null)
+            {
+                _logger.LogWarning("Failed to create user: A user with email {Email} already exists.", request.Email);
                 return ApiResponseFactory.Conflict("A user with this email already exists.");
+            }
 
             var user = new ApplicationUser
             {
@@ -124,6 +133,7 @@ namespace SupportTicketManagement.Core.Services
             var createResult = await _userManager.CreateAsync(user, request.Password);
             if (!createResult.Succeeded)
             {
+                _logger.LogWarning("Failed to create user {Email} due to identity errors.", request.Email);
                 var errors = createResult.Errors.Select(e => e.Description).ToList();
                 return ApiResponseFactory.BadRequest("Failed to create user.", errors);
             }
@@ -136,6 +146,7 @@ namespace SupportTicketManagement.Core.Services
             await _userManager.AddToRoleAsync(user, roleName);
 
             var response = MapToUserResponse(user, roleName);
+            _logger.LogInformation("Admin successfully created user {UserId} with role {RoleName}.", user.Id, roleName);
             return ApiResponseFactory.Success("User created successfully.", response);
         }
 
@@ -149,7 +160,10 @@ namespace SupportTicketManagement.Core.Services
 
             var user = await _userManager.FindByIdAsync(id.ToString());
             if (user is null)
+            {
+                _logger.LogWarning("Failed to update user: User {UserId} not found.", id);
                 return ApiResponseFactory.NotFound("User not found.");
+            }
 
             user.DisplayName = request.DisplayName;
             user.IsDeleted = !request.IsActive;
@@ -157,6 +171,7 @@ namespace SupportTicketManagement.Core.Services
             var updateResult = await _userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
             {
+                _logger.LogWarning("Failed to update user {UserId} due to identity errors.", id);
                 var errors = updateResult.Errors.Select(e => e.Description).ToList();
                 return ApiResponseFactory.BadRequest("Failed to update user.", errors);
             }
@@ -164,6 +179,7 @@ namespace SupportTicketManagement.Core.Services
             var roles = await _userManager.GetRolesAsync(user);
             var response = MapToUserResponse(user, roles.FirstOrDefault() ?? "");
 
+            _logger.LogInformation("Admin successfully updated user {UserId}.", user.Id);
             return ApiResponseFactory.Success("User updated successfully.", response);
         }
 

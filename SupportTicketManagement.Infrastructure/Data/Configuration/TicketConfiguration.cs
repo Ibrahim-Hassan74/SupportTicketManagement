@@ -20,12 +20,10 @@ namespace SupportTicketManagement.Infrastructure.Data.Configuration
                 .HasMaxLength(4000);
 
             builder.Property(t => t.Status)
-                .IsRequired()
-                .HasDefaultValue(TicketStatus.Open);
+                .IsRequired();
 
             builder.Property(t => t.Priority)
-                .IsRequired()
-                .HasDefaultValue(TicketPriority.Medium);
+                .IsRequired();
 
             builder.Property(t => t.CreatedAt)
                 .IsRequired();

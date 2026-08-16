@@ -1,3 +1,4 @@
+using Serilog;
 using SupportTicketManagement.API.Middleware;
 using SupportTicketManagement.API.StartupExtensions;
 using SupportTicketManagement.Core;
@@ -10,6 +11,12 @@ builder.Configuration
     .AddJsonFile(Path.Combine(configPath, "appsettings.json"), optional: false, reloadOnChange: true)
     .AddJsonFile(Path.Combine(configPath, $"appsettings.{builder.Environment.EnvironmentName}.json"), optional: true);
 
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
 builder.Services.ConfigureServices(builder.Configuration);
 
 builder.Services.ConfigureInfrastructure(builder.Configuration);
@@ -17,6 +24,8 @@ builder.Services.ConfigureInfrastructure(builder.Configuration);
 builder.Services.ConfigureCore(builder.Configuration);
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 //if (app.Environment.IsDevelopment())
 {

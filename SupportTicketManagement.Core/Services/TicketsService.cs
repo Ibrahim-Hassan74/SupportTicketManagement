@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using SupportTicketManagement.Core.Domain.Entities;
 using SupportTicketManagement.Core.Domain.IdentityEntities;
 using SupportTicketManagement.Core.DTO;
@@ -16,15 +17,18 @@ namespace SupportTicketManagement.Core.Services
         private readonly ITicketActivityRepository _ticketActivityRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ILogger<TicketsService> _logger;
 
         public TicketsService(
             IUnitOfWork unitOfWork, 
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            ILogger<TicketsService> logger)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _ticketsRepository = unitOfWork.TicketsRepository;
             _ticketActivityRepository = unitOfWork.TicketActivityRepository;
+            _logger = logger;
         }
 
         public async Task<ApiResponse> AssignAgentAsync(Guid id, AssignTicketRequest request, Guid adminId)
@@ -37,11 +41,17 @@ namespace SupportTicketManagement.Core.Services
 
             var agent = await _userManager.FindByIdAsync(request.AgentId.ToString());
             if (agent == null)
+            {
+                _logger.LogWarning("Agent {AgentId} not found while attempting to assign ticket {TicketId}.", request.AgentId, id);
                 return ApiResponseFactory.NotFound("Agent not found.");
+            }
 
             var isAgent = await _userManager.IsInRoleAsync(agent, UserRole.SupportAgent.ToString());
             if (!isAgent)
+            {
+                _logger.LogWarning("User {UserId} is not a support agent. Cannot assign ticket {TicketId}.", agent.Id, id);
                 return ApiResponseFactory.BadRequest("The specified user is not a Support Agent.");
+            }
 
             ticket.AssignedAgentId = request.AgentId;
             ticket.UpdatedAt = DateTimeOffset.UtcNow;
@@ -61,6 +71,7 @@ namespace SupportTicketManagement.Core.Services
             await _ticketsRepository.UpdateAsync(ticket);
             await _unitOfWork.CompleteAsync();
 
+            _logger.LogInformation("Admin {AdminId} successfully assigned ticket {TicketId} to agent {AgentId}.", adminId, id, request.AgentId);
             return ApiResponseFactory.Success("Agent assigned successfully.");
         }
 
@@ -100,6 +111,7 @@ namespace SupportTicketManagement.Core.Services
             var response = MapToResponse(createdTicket);
             response.CustomerName = customer.DisplayName;
 
+            _logger.LogInformation("Customer {CustomerId} created ticket {TicketId}.", customerId, createdTicket.Id);
             return ApiResponseFactory.Success("Ticket created successfully.", response);
         }
 
@@ -181,6 +193,7 @@ namespace SupportTicketManagement.Core.Services
             await _ticketsRepository.UpdateAsync(ticket);
             await _unitOfWork.CompleteAsync();
 
+            _logger.LogInformation("Admin {AdminId} updated priority for ticket {TicketId} from {OldPriority} to {NewPriority}.", adminId, id, oldPriority, request.Priority);
             return ApiResponseFactory.Success("Ticket priority updated successfully.");
         }
 
@@ -320,10 +333,16 @@ namespace SupportTicketManagement.Core.Services
 
             // Basic state machine validation
             if (ticket.Status == TicketStatus.Open && newStatus == TicketStatus.Resolved)
+            {
+                _logger.LogWarning("User {UserId} attempted invalid transition for ticket {TicketId}: Open to Resolved.", userId, id);
                 return ApiResponseFactory.BadRequest("Cannot resolve an open ticket. Must be In Progress first.");
+            }
 
             if (ticket.Status == TicketStatus.Closed && newStatus != TicketStatus.Open)
+            {
+                _logger.LogWarning("User {UserId} attempted invalid transition for ticket {TicketId}: Closed to {NewStatus}.", userId, id, newStatus);
                 return ApiResponseFactory.BadRequest("A closed ticket can only be reopened (set to Open).");
+            }
 
             var oldStatus = ticket.Status;
             ticket.Status = newStatus;
@@ -352,6 +371,7 @@ namespace SupportTicketManagement.Core.Services
             await _ticketsRepository.UpdateAsync(ticket);
             await _unitOfWork.CompleteAsync();
 
+            _logger.LogInformation("User {UserId} updated status for ticket {TicketId} from {OldStatus} to {NewStatus}.", userId, id, oldStatus, newStatus);
             return ApiResponseFactory.Success("Ticket status updated successfully.");
         }
 

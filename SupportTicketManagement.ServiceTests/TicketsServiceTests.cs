@@ -1,6 +1,7 @@
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SupportTicketManagement.Core.Domain.Entities;
 using SupportTicketManagement.Core.Domain.IdentityEntities;
@@ -33,7 +34,7 @@ namespace SupportTicketManagement.ServiceTests
             _unitOfWorkMock.Setup(u => u.TicketsRepository).Returns(_ticketsRepositoryMock.Object);
             _unitOfWorkMock.Setup(u => u.TicketActivityRepository).Returns(_ticketActivityRepositoryMock.Object);
 
-            _ticketsService = new TicketsService(_unitOfWorkMock.Object, _userManagerMock.Object);
+            _ticketsService = new TicketsService(_unitOfWorkMock.Object, _userManagerMock.Object, new Mock<ILogger<TicketsService>>().Object);
         }
 
         #region CreateTicketAsync

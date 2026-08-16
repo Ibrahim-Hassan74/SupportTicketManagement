@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Moq;
 using SupportTicketManagement.Core.Domain.IdentityEntities;
@@ -41,7 +42,7 @@ namespace SupportTicketManagement.ServiceTests
 
             _configurationMock = new Mock<IConfiguration>();
 
-            _authenticationService = new AuthenticationService(_userManagerMock.Object, _signInManagerMock.Object, _httpContextAccessorMock.Object, _jwtServiceMock.Object, _roleManagerMock.Object, _configurationMock.Object);
+            _authenticationService = new AuthenticationService(_userManagerMock.Object, _signInManagerMock.Object, _httpContextAccessorMock.Object, _jwtServiceMock.Object, _roleManagerMock.Object, _configurationMock.Object, new Mock<ILogger<AuthenticationService>>().Object);
         }
 
         #region RegisterAsync

@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Moq;
+using Microsoft.Extensions.Logging;
 using SupportTicketManagement.Core.DTO;
 using SupportTicketManagement.Core.RepositoryContracts;
 using SupportTicketManagement.Core.Services;
@@ -20,7 +21,7 @@ namespace SupportTicketManagement.ServiceTests
 
             _unitOfWorkMock.Setup(u => u.TicketsRepository).Returns(_ticketsRepositoryMock.Object);
 
-            _dashboardService = new DashboardService(_unitOfWorkMock.Object);
+            _dashboardService = new DashboardService(_unitOfWorkMock.Object, new Mock<ILogger<DashboardService>>().Object);
         }
 
         #region GetStatsAsync

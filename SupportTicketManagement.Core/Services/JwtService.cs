@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using SupportTicketManagement.Core.Domain.IdentityEntities;
@@ -8,6 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Extensions.Logging;
 
 namespace SupportTicketManagement.Core.Services
 {
@@ -16,11 +17,13 @@ namespace SupportTicketManagement.Core.Services
     {
         private readonly IConfiguration _configuration;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ILogger<JwtService> _logger;
 
-        public JwtService(IConfiguration configuration, UserManager<ApplicationUser> userManager)
+        public JwtService(IConfiguration configuration, UserManager<ApplicationUser> userManager, ILogger<JwtService> logger)
         {
             _configuration = configuration;
             _userManager = userManager;
+            _logger = logger;
         }
 
         /// <inheritdoc/>
@@ -79,6 +82,8 @@ namespace SupportTicketManagement.Core.Services
 
             var refreshTokenExpiry = DateTimeOffset.UtcNow.AddMinutes(refreshTokenExpiryMinutes);
 
+            _logger.LogInformation("Generated JWT and Refresh token for user {UserId}.", user.Id);
+
             // Create and return an AuthenticationResponse object containing the token, user email, user name, and token expiration time.
             return new ApiSuccessResponse()
             {
@@ -124,6 +129,7 @@ namespace SupportTicketManagement.Core.Services
             if (securityToken is not JwtSecurityToken jwtSecurityToken ||
                 !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
             {
+                _logger.LogWarning("Invalid token validation attempt: Algorithm mismatch or not a JwtSecurityToken.");
                 throw new SecurityTokenException("Invalid token");
             }
 

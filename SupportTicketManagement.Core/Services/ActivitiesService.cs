@@ -3,16 +3,19 @@ using SupportTicketManagement.Core.Enums;
 using SupportTicketManagement.Core.Helper;
 using SupportTicketManagement.Core.RepositoryContracts;
 using SupportTicketManagement.Core.ServiceContracts;
+using Microsoft.Extensions.Logging;
 
 namespace SupportTicketManagement.Core.Services
 {
     public class ActivitiesService : IActivitiesService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<ActivitiesService> _logger;
 
-        public ActivitiesService(IUnitOfWork unitOfWork)
+        public ActivitiesService(IUnitOfWork unitOfWork, ILogger<ActivitiesService> logger)
         {
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         private async Task<bool> CanAccessTicketAsync(Guid ticketId, Guid userId, string role)
@@ -35,7 +38,10 @@ namespace SupportTicketManagement.Core.Services
         public async Task<ApiResponse> GetActivitiesAsync(Guid ticketId, Guid userId, string role)
         {
             if (!await CanAccessTicketAsync(ticketId, userId, role))
+            {
+                _logger.LogWarning("User {UserId} ({Role}) denied access to get activities for ticket {TicketId}.", userId, role, ticketId);
                 return ApiResponseFactory.NotFound("Ticket not found or you do not have access.");
+            }
 
             var activities = await _unitOfWork.TicketActivityRepository.GetFilteredAsync(
                 a => a.TicketId == ticketId,

@@ -414,3 +414,6 @@ FodyWeavers.xsd
 
 # Docker environment secrets
 .env
+
+# Application Logs
+Logs/

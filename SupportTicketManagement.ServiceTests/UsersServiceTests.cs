@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Moq;
 using SupportTicketManagement.Core.Domain.IdentityEntities;
 using SupportTicketManagement.Core.DTO;
@@ -23,7 +24,7 @@ namespace SupportTicketManagement.ServiceTests
             var roleStoreMock = new Mock<IRoleStore<ApplicationRole>>();
             _roleManagerMock = new Mock<RoleManager<ApplicationRole>>(roleStoreMock.Object, null, null, null, null);
 
-            _usersService = new UsersService(_userManagerMock.Object, _roleManagerMock.Object);
+            _usersService = new UsersService(_userManagerMock.Object, _roleManagerMock.Object, new Mock<ILogger<UsersService>>().Object);
         }
 
         #region GetUserByIdAsync

@@ -248,6 +248,7 @@ To run the automated tests locally:
 - **Customer Data Isolation**: In `TicketsController` and `TicketService`, the user's claims are extracted via `IHttpContextAccessor`. If the user is a `Customer`, the repository queries are automatically appended with `.Where(t => t.CustomerId == userId)`, guaranteeing strict horizontal data isolation.
 - **Activity Generation**: Rather than trusting clients to post activity logs, the business logic layer intercepts state mutations (like status changes or assignments) and automatically generates the corresponding `TicketActivity` entities to maintain an immutable audit trail.
 - **Centralized Exception Handling**: Global exception handling middleware is utilized to catch domain exceptions and translate them into standardized RFC 7807 Problem Details responses, preventing stack traces from leaking to the client.
+- **Structured Logging**: Integrated Serilog for robust, structured logging. The application captures HTTP requests, handled and unhandled exceptions, and critical business logic events across all layers, outputting them to the console and daily rolling log files.
 
 ## Assessment Requirements Coverage
 
@@ -266,3 +267,4 @@ To run the automated tests locally:
 | Automated Testing        | xUnit tests for controllers and logic. | [Yes] |
 | Seed Data                | EF Core initializers included. | [Yes] |
 | Dockerization            | Included Dockerfile and docker-compose.yml. | [Yes] |
+| Structured Logging       | Implemented via Serilog with rolling files. | [Yes] |

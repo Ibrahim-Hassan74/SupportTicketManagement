@@ -4,16 +4,19 @@ using SupportTicketManagement.Core.Enums;
 using SupportTicketManagement.Core.Helper;
 using SupportTicketManagement.Core.RepositoryContracts;
 using SupportTicketManagement.Core.ServiceContracts;
+using Microsoft.Extensions.Logging;
 
 namespace SupportTicketManagement.Core.Services
 {
     public class TimeEntriesService : ITimeEntriesService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<TimeEntriesService> _logger;
 
-        public TimeEntriesService(IUnitOfWork unitOfWork)
+        public TimeEntriesService(IUnitOfWork unitOfWork, ILogger<TimeEntriesService> logger)
         {
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public async Task<ApiResponse> GetTimeEntriesAsync(Guid ticketId, Guid userId, string role)
@@ -24,10 +27,16 @@ namespace SupportTicketManagement.Core.Services
 
             // Only Admins and assigned Agents can view time entries
             if (role == UserRole.Customer.ToString())
+            {
+                _logger.LogWarning("Customer {UserId} denied access to get time entries for ticket {TicketId}.", userId, ticketId);
                 return ApiResponseFactory.NotFound("Ticket not found."); // IDOR protection
+            }
 
             if (role == UserRole.SupportAgent.ToString() && ticket.AssignedAgentId != userId)
+            {
+                _logger.LogWarning("Agent {AgentId} denied access to get time entries for ticket {TicketId}.", userId, ticketId);
                 return ApiResponseFactory.NotFound("Ticket not found or not assigned to you.");
+            }
 
             var timeEntries = await _unitOfWork.TimeEntryRepository.GetFilteredAsync(
                 t => t.TicketId == ticketId,
@@ -60,7 +69,10 @@ namespace SupportTicketManagement.Core.Services
 
             var ticket = await _unitOfWork.TicketsRepository.GetByIdAsync(ticketId);
             if (ticket == null || ticket.AssignedAgentId != agentId)
+            {
+                _logger.LogWarning("Agent {AgentId} denied access to add time entry to ticket {TicketId}.", agentId, ticketId);
                 return ApiResponseFactory.NotFound("Ticket not found or not assigned to you.");
+            }
 
             if (request.WorkDate.ToDateTime(TimeOnly.MinValue) > DateTime.UtcNow)
                 return ApiResponseFactory.BadRequest("Work date cannot be in the future.");
@@ -89,6 +101,7 @@ namespace SupportTicketManagement.Core.Services
 
             await _unitOfWork.CompleteAsync();
 
+            _logger.LogInformation("Agent {AgentId} logged {Duration} minutes on ticket {TicketId}.", agentId, request.DurationMinutes, ticketId);
             return ApiResponseFactory.Success("Time entry added successfully.");
         }
     }

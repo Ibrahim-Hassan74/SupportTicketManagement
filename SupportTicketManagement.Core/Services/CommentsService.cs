@@ -4,16 +4,19 @@ using SupportTicketManagement.Core.Enums;
 using SupportTicketManagement.Core.Helper;
 using SupportTicketManagement.Core.RepositoryContracts;
 using SupportTicketManagement.Core.ServiceContracts;
+using Microsoft.Extensions.Logging;
 
 namespace SupportTicketManagement.Core.Services
 {
     public class CommentsService : ICommentsService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<CommentsService> _logger;
 
-        public CommentsService(IUnitOfWork unitOfWork)
+        public CommentsService(IUnitOfWork unitOfWork, ILogger<CommentsService> logger)
         {
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         private async Task<bool> CanAccessTicketAsync(Guid ticketId, Guid userId, string role)
@@ -36,7 +39,10 @@ namespace SupportTicketManagement.Core.Services
         public async Task<ApiResponse> GetCommentsAsync(Guid ticketId, Guid userId, string role)
         {
             if (!await CanAccessTicketAsync(ticketId, userId, role))
+            {
+                _logger.LogWarning("User {UserId} ({Role}) denied access to get comments for ticket {TicketId}.", userId, role, ticketId);
                 return ApiResponseFactory.NotFound("Ticket not found or you do not have access.");
+            }
 
             var comments = await _unitOfWork.TicketCommentRepository.GetFilteredAsync(
                 c => c.TicketId == ticketId,
@@ -62,7 +68,10 @@ namespace SupportTicketManagement.Core.Services
             ValidationHelper.ModelValidation(request);
 
             if (!await CanAccessTicketAsync(ticketId, userId, role))
+            {
+                _logger.LogWarning("User {UserId} ({Role}) denied access to add comment to ticket {TicketId}.", userId, role, ticketId);
                 return ApiResponseFactory.NotFound("Ticket not found or you do not have access.");
+            }
 
             var comment = new TicketComment
             {
@@ -86,6 +95,7 @@ namespace SupportTicketManagement.Core.Services
 
             await _unitOfWork.CompleteAsync();
 
+            _logger.LogInformation("User {UserId} added a comment to ticket {TicketId}.", userId, ticketId);
             return ApiResponseFactory.Success("Comment added successfully.");
         }
     }

@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Moq;
+using Microsoft.Extensions.Logging;
 using SupportTicketManagement.Core.Domain.Entities;
 using SupportTicketManagement.Core.DTO;
 using SupportTicketManagement.Core.Enums;
@@ -26,7 +27,7 @@ namespace SupportTicketManagement.ServiceTests
             _unitOfWorkMock.Setup(u => u.TicketsRepository).Returns(_ticketsRepositoryMock.Object);
             _unitOfWorkMock.Setup(u => u.TicketActivityRepository).Returns(_ticketActivityRepositoryMock.Object);
 
-            _activitiesService = new ActivitiesService(_unitOfWorkMock.Object);
+            _activitiesService = new ActivitiesService(_unitOfWorkMock.Object, new Mock<ILogger<ActivitiesService>>().Object);
         }
 
         #region GetActivitiesAsync
