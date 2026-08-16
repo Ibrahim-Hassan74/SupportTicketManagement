@@ -4,10 +4,10 @@ A robust, enterprise-grade ASP.NET Core 8 Web API serving as the backend for the
 
 ## Live Resources
 
-- **Live API Base URL**: `https://support-ticket.runasp.net/api/v1`
-- **Swagger / OpenAPI Documentation**: `https://support-ticket.runasp.net/swagger/index.html`
-- **Frontend Live Demo**: `[Live Demo Placeholder]`
-- **GitHub Repository**: `[GitHub Repository URL]`
+- **Live API Base URL**: [https://support-ticket.runasp.net/api/v1](https://support-ticket.runasp.net/api/v1)
+- **Swagger / OpenAPI Documentation**: [Swagger Interface](https://support-ticket.runasp.net/swagger/index.html)
+- **Frontend Live Demo**: [https://ticket-hub.web.app](https://ticket-hub.web.app)
+- **GitHub Repository**: [Ibrahim-Hassan74/TicketHub](https://github.com/Ibrahim-Hassan74/TicketHub)
 
 ## Assessment Overview
 
@@ -43,31 +43,37 @@ The solution adheres to Clean Architecture, cleanly separating domain logic from
 ```text
 SupportTicketManagement
 |
-|-- SupportTicketManagement.API
-|   |-- Configurations
-|   |-- Controllers
-|   |-- Middleware
-|   `-- StartupExtensions
+|-- src
+|   |-- SupportTicketManagement.API
+|   |   |-- Configurations
+|   |   |-- Controllers
+|   |   |-- Middleware
+|   |   `-- StartupExtensions
+|   |
+|   |-- SupportTicketManagement.Core
+|   |   |-- Domain
+|   |   |   |-- Entities
+|   |   |   `-- IdentityEntities
+|   |   |-- DTO
+|   |   |-- Enums
+|   |   |-- ServiceContracts
+|   |   `-- Services
+|   |
+|   `-- SupportTicketManagement.Infrastructure
+|       |-- Data
+|       |   `-- Migrations
+|       |-- Identity
+|       `-- Repository
 |
-|-- SupportTicketManagement.Core
-|   |-- Domain
-|   |   |-- Entities
-|   |   `-- IdentityEntities
-|   |-- DTO
-|   |-- Enums
-|   |-- ServiceContracts
-|   `-- Services
-|
-`-- SupportTicketManagement.Infrastructure
-    |-- Data
-    |   `-- Migrations
-    |-- Identity
-    `-- Repository
+`-- Tests
+    |-- SupportTicketManagement.ControllerTests
+    `-- SupportTicketManagement.ServiceTests
 ```
 
 - **Core**: Contains the enterprise domain entities, DTOs, Enums, and business logic (Services/ServiceContracts). It has no dependencies on external frameworks or databases.
 - **Infrastructure**: Implements the repository interfaces, EF Core `DbContext`, Identity setup, and database migrations.
 - **API**: The presentation layer containing Controllers, JWT configuration, exception handling middleware, and dependency injection composition.
+- **Tests**: Contains xUnit projects (`ControllerTests` and `ServiceTests`) to ensure business logic and API endpoints function correctly in isolation.
 
 ## Domain Model
 
@@ -196,9 +202,20 @@ Required environment configuration is located in `appsettings.json`. For local d
 6. Open Swagger at `https://localhost:7235/swagger/index.html` (or the port specified in your launchSettings).
 7. Login using one of the seeded accounts to receive a JWT.
 
+## Testing
+
+The solution includes xUnit test projects to ensure business rules and API endpoints function correctly in isolation.
+
+To run the automated tests locally:
+
+1. Navigate to the root of the backend repository.
+2. Run the tests using the .NET CLI:
+   ```bash
+   dotnet test
+   ```
+
 ## Assumptions & Limitations
 
-- **Automated Testing**: As per the current implementation scope, backend automated tests (unit and integration tests) have not yet been implemented. This was deferred to prioritize architectural soundness and feature completeness within the time constraints.
 - **Dockerization**: The solution currently does not include a `docker-compose.yml` or `Dockerfile`. Standard local IIS Express or Kestrel hosting is expected.
 - **Refresh Tokens**: While the configuration keys for refresh tokens exist in `appsettings.json`, full refresh token rotation is not actively enforced in the current endpoint structure.
 
@@ -223,5 +240,5 @@ Required environment configuration is located in `appsettings.json`. For local d
 | Activity Timeline        | Automated audit trail generation. | [Yes] |
 | Time Tracking            | Included with auto-aggregation. | [Yes] |
 | Dashboard Metrics        | Dedicated controller for statistics. | [Yes] |
-| Automated Testing        | Deferred due to time constraints. | [No] |
+| Automated Testing        | xUnit tests for controllers and logic. | [Yes] |
 | Seed Data                | EF Core initializers included. | [Yes] |
