@@ -43,7 +43,9 @@ namespace SupportTicketManagement.Core
                         context.HandleResponse();
                         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                         context.Response.ContentType = "application/json";
-                        var result = JsonSerializer.Serialize(ApiResponseFactory.Unauthorized("You are not authorized."));
+                        var result = JsonSerializer.Serialize(ApiResponseFactory.Unauthorized("You are not authorized."), new JsonSerializerOptions { 
+                            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                        });
                         return context.Response.WriteAsync(result);
                     }
                 };
